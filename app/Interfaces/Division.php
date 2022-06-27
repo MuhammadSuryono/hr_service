@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\Interfaces;
+namespace App\Interfaces;
 
 interface Division
 {
@@ -31,4 +31,9 @@ interface Division
      * @return object
      */
     public function delete_division(int $id): object;
+
+    /**
+     * @return object
+     */
+    public function dropdowns(): object;
 }

@@ -3,8 +3,10 @@
 namespace App\Repositories\Cuti;
 
 use App\Http\Resources\Cuti\ReportingDashboardCutiResource;
+use App\Http\Resources\Cuti\ReportingRekapitulasiCutiKaryawan;
 use App\Interfaces\Cuti\ReportingCutiInterface;
 use App\Repositories\Controller;
+use App\User;
 
 class StatisticCutiRepository extends Controller implements ReportingCutiInterface
 {
@@ -16,7 +18,9 @@ class StatisticCutiRepository extends Controller implements ReportingCutiInterfa
 
     public function historyAllCuti(): object
     {
-        // TODO: Implement historyAllCuti() method.
+        $users = User::all();
+        $collection = ReportingRekapitulasiCutiKaryawan::collection($users);
+        return $this->callback_response('success', 200, 'Success retrieve data', $collection);
     }
 
     public function dashboardMyCuti(): object

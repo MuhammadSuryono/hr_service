@@ -2,9 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Http\Resources\DropdownDivisionResource;
 use App\Models\Division;
 
-class DivisionRepository extends Controller implements Interfaces\Division
+class DivisionRepository extends Controller implements \App\Interfaces\Division
 {
 
     /**
@@ -57,5 +58,11 @@ class DivisionRepository extends Controller implements Interfaces\Division
         if ($division == null) return $this->callback(false, 'Division not found');
         $isDeleted = $division->delete();
         return $this->callback($isDeleted, $isDeleted ? 'Division deleted' : 'Division not deleted');
+    }
+
+    public function dropdowns(): object
+    {
+        $divisions = Division::all();
+        return $this->callback_response('success', 200, 'Success get data', DropdownDivisionResource::collection($divisions));
     }
 }

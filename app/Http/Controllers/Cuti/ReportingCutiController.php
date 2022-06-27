@@ -24,4 +24,10 @@ class ReportingCutiController extends Controller
         $resp = $this->reportingCuti->dashboardMyCuti();
         return $this->callback_response($resp->status, $resp->code, $resp->message, $resp->data);
     }
+
+    public function historyCutiSemuaKaryawan(): JsonResponse
+    {
+        $resp = $this->reportingCuti->historyAllCuti();
+        return $this->callback_response($resp->status, $resp->code, $resp->message, $resp->data);
+    }
 }

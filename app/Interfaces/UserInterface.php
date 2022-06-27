@@ -74,4 +74,14 @@ Interface UserInterface
      * @return object
      */
     public function add_member_family(UserFamilyCreate $request): object;
+
+    /**
+     * @return object
+     */
+    public function read_detail_user_information():object;
+
+    /**
+     * @return object
+     */
+    public function dropdown_user(): object;
 }

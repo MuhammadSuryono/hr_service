@@ -21,4 +21,9 @@ class Controller extends BaseController
             'data' => $data
         ], $code);
     }
+
+    public function callbackXml($code = 200, $data = [])
+    {
+        return response($data, $code)->header('Content-Type', 'text/xml');
+    }
 }

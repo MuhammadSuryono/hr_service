@@ -9,6 +9,10 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+    # Handle MRI_TOKEN Header
+    RewriteCond %{HTTP:MRI_TOKEN} .
+    RewriteRule .* - [E=HTTP_MRI_TOKEN:%{HTTP:MRI_TOKEN}]
+
     # Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$

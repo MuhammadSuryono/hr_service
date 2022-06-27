@@ -4,7 +4,10 @@ namespace App\Repositories;
 
 use App\Helper\UploadFile;
 use App\Http\Requests\UserFamilyCreate;
+use App\Http\Resources\UserDropdownResource;
+use App\Http\Resources\UserProfileResource;
 use App\Interfaces\UserInterface;
+use App\models\UserEmployeeDetail;
 use App\User;
 use App\Models\UserBankAccount;
 use App\Models\UserDetail;
@@ -202,5 +205,19 @@ class UserRepository extends Controller implements UserInterface
     public function add_member_family(UserFamilyCreate $request): object
     {
         // TODO: Implement add_member_family() method.
+    }
+
+    public function read_detail_user_information():object
+    {
+        return $this->callback_response('success', 200, 'Success retrieve data', new UserProfileResource(auth()->user()));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dropdown_user(): object
+    {
+        $users = User::all();
+        return $this->callback_response('success', 200, 'Success retrieve data', UserDropdownResource::collection($users));
     }
 }

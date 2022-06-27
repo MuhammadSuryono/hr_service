@@ -9,18 +9,36 @@ class ReportingDashboardCutiResource extends JsonResource
     public function toArray($request)
     {
         $user = auth()->user();
-        $userDetail = $user->userDetail;
+        $userDetail = $user->userEmployeeDetail;
 
-        $penggunaanCutiPerdana = $user->usageCuti('perdana')->first()->total_usage ?? 0;
-        $totalCutiPerdana = $user->leavePerdana->total_cuti ?? 0;
+        $longLeaveYear = $user->leaveLongYear;
+
+        $penggunaanCutiPerdana = $longLeaveYear != null ? 0 : $user->usageCuti('perdana')->first()->total_usage ?? 0;
+        $totalCutiPerdana = $longLeaveYear != null ? 0 : $user->leavePerdana->total_cuti ?? 0;
         $sisaCutiperdana = $totalCutiPerdana > 0 ? $totalCutiPerdana - $penggunaanCutiPerdana : 0;
-        $totalPenggunaanCutiPerdana = $totalCutiPerdana - $sisaCutiperdana;
+        $totalPenggunaanCutiPerdana =  $totalCutiPerdana > 0 ? $totalCutiPerdana - $sisaCutiperdana : 0;
 
-        $totalCutiTahunLalu = $user->leaveBeforeYear->total ?? 0;
-        $totalPenggunaanCutiTahunLalu = $user->usageCutiPreviousYear()->first()->total_usage ?? 0;
+        $dataCutiTahunLalu = $user->leaveYear(date("Y",strtotime("-1 year")))->first();
+        $isReset = date('m') > ($dataCutiTahunLalu->next_month_reset ?? null);
+        $totalCutiTahunLalu = !$isReset ? $dataCutiTahunLalu->total ?? 0 : 0;
+        $totalPenggunaanCutiTahunLalu = !$isReset ? $user->usageCutiPreviousYear()->first()->total_usage ?? 0 : 0;
         $sisaCutiTahunLalu = $totalCutiTahunLalu > 0 ? $totalCutiTahunLalu - $totalPenggunaanCutiTahunLalu : 0;
 
+        $totalCutiTahunBerjalan = $user->leaveYear(date("Y"))->first()->total ?? 0;
+        $totalPenggunaanCutiBerjalan= $totalCutiTahunBerjalan > 0 ? $user->usageCutiCurrentYear()->first()->total_usage ?? 0 : 0;
+        $sisaCutiTahunBerjalan = $totalCutiTahunBerjalan > 0 ? $totalCutiTahunBerjalan - $totalPenggunaanCutiBerjalan : 0;
 
+        $totalLongLeaveYear = $longLeaveYear->total ?? 0;
+        $totalPenggunaanCutiLongLeaveYear = $user->usageCutiLongYear()->first()->total_usage ?? 0;
+        $sisaCutiLongYear = $totalLongLeaveYear > 0 ? $totalLongLeaveYear - $totalPenggunaanCutiLongLeaveYear : 0;
+
+        $totalLeaveDispensasi = $user->leaveDispensasi->total ?? 0;
+        $totalPenggunaanCutiDispensasi = $user->usageCutiDispensasi->total ?? 0;
+        $sisaCutiDispensasi = $totalLeaveDispensasi > 0 ? $totalLeaveDispensasi - $totalPenggunaanCutiDispensasi : 0;
+
+        $totalCutiKebijakan = $user->leaveKebijakan->total ?? 0;
+        $totalPenggunaanCutiKebijakan = $user->usageCutiKebijakan->total ?? 0;
+        $sisaCutiKebiajakn = $totalCutiKebijakan > 0 ? $totalCutiKebijakan - $totalPenggunaanCutiKebijakan : 0;
         return [
           'user_id' => $user->id,
           'full_name' => $user->full_name,
@@ -35,7 +53,7 @@ class ReportingDashboardCutiResource extends JsonResource
                   "category_paid_leave_name" => 'Cuti Perdana',
                   "total_paid_leave" => $totalCutiPerdana,
                   "remaining_days_off" => $sisaCutiperdana,
-                  "description"=> "$totalPenggunaanCutiPerdana hari dari $totalCutiPerdana hari yang di telah digunakan",
+                  "description"=> "$totalPenggunaanCutiPerdana hari yang di telah digunakan",
                   "icon"=> 'fa-star',
                   "icon_color"=> 'text-c-green',
                   "base_color"=> 'card-green'
@@ -43,9 +61,9 @@ class ReportingDashboardCutiResource extends JsonResource
               [
                   "id" => 1,
                   "category_paid_leave_name" => 'Cuti Tahun Lalu',
-                  "total_paid_leave" => $user->leaveBeforeYear->total ?? 0,
+                  "total_paid_leave" => $totalCutiTahunLalu,
                   "remaining_days_off" => $sisaCutiTahunLalu,
-                  "description"=> 'Dari total 15 hari yang didapatkan',
+                  "description"=> "$totalPenggunaanCutiTahunLalu hari yang di telah digunakan",
                   "icon"=> 'fa-calendar',
                   "icon_color"=> 'text-c-yellow',
                   "base_color"=> 'card-warning'
@@ -53,9 +71,9 @@ class ReportingDashboardCutiResource extends JsonResource
               [
                   "id" => 1,
                   "category_paid_leave_name" => 'Cuti Tahun Berjalan',
-                  "total_paid_leave" => 15,
-                  "remaining_days_off" => 12,
-                  "description"=> 'Dari total 15 hari yang didapatkan',
+                  "total_paid_leave" => $totalCutiTahunBerjalan,
+                  "remaining_days_off" => $sisaCutiTahunBerjalan,
+                  "description"=> "$totalPenggunaanCutiBerjalan hari yang di telah digunakan",
                   "icon"=> 'fa-star',
                   "icon_color"=> 'text-c-red',
                   "base_color"=> 'card-danger'
@@ -63,9 +81,9 @@ class ReportingDashboardCutiResource extends JsonResource
               [
                   "id" => 1,
                   "category_paid_leave_name" => 'Cuti Panjang',
-                  "total_paid_leave" => 15,
-                  "remaining_days_off" => 12,
-                  "description"=> 'Dari total 15 hari yang didapatkan',
+                  "total_paid_leave" => $totalLongLeaveYear,
+                  "remaining_days_off" => $sisaCutiLongYear,
+                  "description"=> "$totalPenggunaanCutiLongLeaveYear hari yang di telah digunakan",
                   "icon"=> 'fa-star',
                   "icon_color"=> 'text-c-blue',
                   "base_color"=> 'card-primary'
@@ -73,9 +91,9 @@ class ReportingDashboardCutiResource extends JsonResource
               [
                   "id" => 1,
                   "category_paid_leave_name" => 'Cuti Dispensasi',
-                  "total_paid_leave" => 15,
-                  "remaining_days_off" => 12,
-                  "description"=> 'Dari total 15 hari yang didapatkan',
+                  "total_paid_leave" => $totalLeaveDispensasi,
+                  "remaining_days_off" => $sisaCutiDispensasi,
+                  "description"=> "$totalPenggunaanCutiDispensasi hari yang di telah digunakan",
                   "icon"=> 'fa-star',
                   "icon_color"=> 'text-c-blue',
                   "base_color"=> 'card-info'
@@ -83,9 +101,9 @@ class ReportingDashboardCutiResource extends JsonResource
               [
                   "id" => 1,
                   "category_paid_leave_name" => 'Cuti Kebijakan',
-                  "total_paid_leave" => 15,
-                  "remaining_days_off" => 12,
-                  "description"=> 'Dari total 15 hari yang didapatkan',
+                  "total_paid_leave" => $totalCutiKebijakan,
+                  "remaining_days_off" => $sisaCutiKebiajakn,
+                  "description"=> "$totalPenggunaanCutiKebijakan hari yang di telah digunakan",
                   "icon"=> 'fa-star',
                   "icon_color"=> 'text-c-purple',
                   "base_color"=> 'card-blue'

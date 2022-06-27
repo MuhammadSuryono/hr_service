@@ -1,12 +1,13 @@
 <?php
 
-namespace App\models\Cuti;
+namespace App\models;
 
 use App\User;
+use Illuminate\Database\Eloquent\Model;
 
-class CutiDispensasi extends \Illuminate\Database\Eloquent\Model
+class UserHead extends Model
 {
-    protected $table = 'cuti_dispensasi';
+    protected $table = 'user_head';
     protected $guarded = [];
 
     public function user()

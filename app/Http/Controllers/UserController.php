@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Interfaces\UserInterface;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
@@ -79,5 +82,23 @@ class UserController extends Controller
     {
         $callbackUpdate = $this->userRepository->add_document();
         return $this->BuildResponse($callbackUpdate->is_success ? 200 : 400, $callbackUpdate->message, $callbackUpdate->data);
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function profile_read_user():JsonResponse
+    {
+        $resp = $this->userRepository->read_detail_user_information();
+        return $this->callback_response($resp->status, $resp->code, $resp->message, $resp->data);
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function dropdown_user(): JsonResponse
+    {
+        $resp = $this->userRepository->dropdown_user();
+        return $this->callback_response($resp->status, $resp->code, $resp->message, $resp->data);
     }
 }

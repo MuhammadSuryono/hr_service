@@ -20,8 +20,8 @@ class UserResource extends JsonResource
             'full_name' => $this->full_name,
             'email' => $this->email,
             'phone_number' => $this->phone_number,
-            'division' => $this->userDetail->division->name ?? 'Belum terdaftar',
-            'level' => $this->userDetail->level->name ?? 'Belum terdaftar',
+            'division' => $this->userEmployeeDetail->division->name ?? 'Belum terdaftar',
+            'level' => $this->userEmployeeDetail->level->name ?? 'Belum terdaftar',
         ];
     }
 }

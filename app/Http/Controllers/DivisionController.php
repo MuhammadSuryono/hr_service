@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DivisionRequest;
-use App\Repositories\Interfaces\Division;
+use App\Interfaces\Division;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -25,7 +25,6 @@ class DivisionController extends Controller
      */
     public function __construct(Request $request, Division $division)
     {
-        $this->middleware('auth:api');
         $this->division = $division;
         $this->request = $request;
     }
@@ -72,6 +71,12 @@ class DivisionController extends Controller
     {
         $callback = $this->division->delete_division((int)$id);
         return $this->BuildResponse($callback->is_success ? 200 : 400, $callback->message, $callback->data);
+    }
+
+    public function dropdown_divisions():JsonResponse
+    {
+        $resp = $this->division->dropdowns();
+        return $this->callback_response($resp->status, $resp->code, $resp->message, $resp->data);
     }
 
 }
